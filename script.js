@@ -16,6 +16,8 @@ const showConceptsBtn = document.getElementById("showConcepts");
 const hideConceptsBtn = document.getElementById("hideConcepts");
 // container reference used for toggling
 const container = document.querySelector('.container');
+const writingArea = document.getElementById('writingArea');
+const fakeCursor = document.getElementById('fakeCursor');
 
 
 // ================== DIARY ==================
@@ -68,6 +70,10 @@ function autoResizeTextarea(el) {
 // run once on load to size correctly if there is existing text
 window.addEventListener('DOMContentLoaded', () => {
     autoResizeTextarea(diaryText);
+    // reflect whether diary has content so we can hide fake cursor
+    if (diaryText && diaryText.value && diaryText.value.length > 0) {
+        if (writingArea) writingArea.classList.add('writing-has-text');
+    }
 });
 
 // respond whenever the date input changes – use our helper to update display
@@ -92,20 +98,20 @@ function renderConcepts() {
     if (!conceptListEl) return;
     conceptListEl.innerHTML = '';
     concepts.forEach((c, idx) => {
-        const card = document.createElement('div');
-        card.className = 'concept-card';
-        card.innerHTML = `
+        const row = document.createElement('div');
+        row.className = 'concept-row';
+        row.innerHTML = `
             <h3>${c.name}</h3>
             <p>${c.text}</p>
             <button class="concept-delete" data-index="${idx}" title="Delete">×</button>
         `;
         // delete handler
-        card.querySelector('.concept-delete').addEventListener('click', () => {
+        row.querySelector('.concept-delete').addEventListener('click', () => {
             concepts.splice(idx,1);
             saveConcepts(concepts);
             renderConcepts();
         });
-        conceptListEl.appendChild(card);
+        conceptListEl.appendChild(row);
     });
 }
 
@@ -205,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
     dateInput.value = today;
     updateDate(today);
     // focus the writing area so the user can start typing immediately
-    if (diaryText) diaryText.focus();
+    // do not autofocus the textarea to avoid auto keyboard popup on mobile
 
     // ensure concepts view is hidden initially; list remains hidden until user requests
     if (conceptView) conceptView.classList.remove('active');
@@ -227,6 +233,54 @@ document.addEventListener("DOMContentLoaded", function () {
             startX = undefined;
         });
     }
+    // clicking the writing area or fake cursor should focus the textarea
+    if (writingArea) {
+        const focusDiary = () => {
+            if (!diaryText) return;
+            try {
+                // place caret at end
+                const len = diaryText.value ? diaryText.value.length : 0;
+                diaryText.focus();
+                diaryText.setSelectionRange(len, len);
+            } catch (e) {
+                // some platforms may throw; try again shortly
+                setTimeout(() => {
+                    try { diaryText.focus(); } catch {}
+                }, 50);
+            }
+        };
+
+        ['click','mousedown','touchstart','touchend'].forEach(evt => {
+            writingArea.addEventListener(evt, (e) => {
+                // allow the user to tap anywhere to start typing
+                focusDiary();
+            });
+        });
+    }
+    if (fakeCursor) {
+        ['click','mousedown','touchstart','touchend'].forEach(evt => {
+            fakeCursor.addEventListener(evt, (e) => {
+                focusDiary();
+            });
+        });
+    }
+
+    // show/hide fake cursor based on focus and content
+    if (diaryText) {
+        diaryText.addEventListener('focus', () => {
+            if (writingArea) writingArea.classList.add('writing-focused');
+        });
+        diaryText.addEventListener('blur', () => {
+            if (writingArea) writingArea.classList.remove('writing-focused');
+        });
+        diaryText.addEventListener('input', () => {
+            if (diaryText.value && diaryText.value.length > 0) {
+                if (writingArea) writingArea.classList.add('writing-has-text');
+            } else {
+                if (writingArea) writingArea.classList.remove('writing-has-text');
+            }
+        });
+    }
 });
 
 // ---------- view toggling ----------
@@ -242,7 +296,6 @@ if (backToDiary && conceptView && container) {
     backToDiary.addEventListener('click', () => {
         conceptView.classList.remove('active');
         container.style.display = 'block';
-        if (diaryText) diaryText.focus();
     });
 }
 
@@ -345,7 +398,6 @@ function clearAllData() {
             // unlocked
             splash.style.display = 'none';
             if (container) container.style.display = 'block';
-            if (diaryText) diaryText.focus();
         }
         resetTimer();
     }

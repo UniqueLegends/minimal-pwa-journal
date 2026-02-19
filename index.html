@@ -9,16 +9,10 @@
     <!-- PWA manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-title" content="Diary & Notes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
-    <link rel="mask-icon" href="icon-192.png" color="#6aa9ff">
     <!-- enable standalone on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="icon-192.png" />
-    <link rel="apple-touch-icon" sizes="120x120" href="icon-192.png" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
   </head>
   <body>
     <!-- full-screen splash initially holds a fake calculator -->
@@ -57,7 +51,10 @@
         <input type="date" id="dateInput" style="display:none;" />
         <button id="lockBtn" title="Lock" aria-label="Lock">🔒</button>
       </div>
-      <textarea id="diaryText" placeholder="Start writing..."></textarea>
+      <div id="writingArea">
+        <textarea id="diaryText" placeholder="Start writing..."></textarea>
+        <div id="fakeCursor" aria-hidden="true"></div>
+      </div>
     </div>
 
     <div id="conceptView">

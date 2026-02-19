@@ -7,7 +7,6 @@ const ASSETS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './offline.html',
 ];
 
 self.addEventListener('install', event => {
@@ -31,20 +30,10 @@ self.addEventListener('fetch', event => {
     caches.match(event.request).then(resp => {
       if (resp) return resp;
       return fetch(event.request).then(fetchRes => {
-        // if response is invalid, throw to trigger catch
-        if (!fetchRes || fetchRes.status !== 200 || fetchRes.type === 'opaque') {
-          throw new Error('Network fetch failed');
-        }
         return caches.open(CACHE_NAME).then(cache => {
           cache.put(event.request, fetchRes.clone());
           return fetchRes;
         });
-      }).catch(() => {
-        // fallback for navigations to offline page
-        if (event.request.mode === 'navigate' || (event.request.headers.get('accept') || '').includes('text/html')) {
-          return caches.match('./offline.html');
-        }
-        return caches.match(event.request);
       });
     })
   );

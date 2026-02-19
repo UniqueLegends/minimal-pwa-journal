@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diary &amp; Notes (Dark)</title>
+    <!-- iOS style sheet -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- PWA manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <!-- enable standalone on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+  </head>
+  <body>
+    <!-- full-screen splash initially holds a fake calculator -->
+    <div id="splash">
+      <div id="calculator">
+        <input id="calcDisplay" type="text" readonly value="0" />
+        <div class="calc-buttons">
+          <button data-value="7">7</button>
+          <button data-value="8">8</button>
+          <button data-value="9">9</button>
+          <button class="operator" data-value="/">÷</button>
+
+          <button data-value="4">4</button>
+          <button data-value="5">5</button>
+          <button data-value="6">6</button>
+          <button class="operator" data-value="*">×</button>
+
+          <button data-value="1">1</button>
+          <button data-value="2">2</button>
+          <button data-value="3">3</button>
+          <button class="operator" data-value="-">−</button>
+
+          <button data-value="0">0</button>
+          <button data-value=".">.</button>
+          <button id="calcClear">C</button>
+          <button class="operator" data-value="+">+</button>
+
+          <button id="calcEquals" style="grid-column: span 4;">=</button>
+        </div>
+      </div>
+    </div>
+    <div class="container" style="display:none;">
+      <button id="lockBtn" style="float: right; margin-bottom:10px; background:#555;">Lock</button>
+      <div class="section">
+        <input type="date" id="dateInput" />
+        <textarea id="diaryText"></textarea>
+        <button id="saveBtn">Save</button>
+      </div>
+
+      <div class="section">
+        <h2>Concept</h2>
+        <input id="conceptName" placeholder="Concept Name" />
+        <textarea
+          id="conceptExplanation"
+          placeholder="Explain in your own words"
+        ></textarea>
+        <button id="conceptSaveBtn">Save</button>
+        <button id="showConcepts">Show all Concepts</button>
+        <div id="conceptList" style="display: none;"></div>
+        <button id="hideConcepts">Hide Concepts</button>
+      </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+      // register service worker if supported
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(console.error);
+      }
+    </script>
+  </body>
+</html>

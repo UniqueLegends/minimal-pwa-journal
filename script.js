@@ -83,7 +83,7 @@ function renderConcepts() {
         `;
         // delete handler
         row.querySelector('.concept-delete').addEventListener('click', () => {
-            concepts.splice(idx,1);
+            concepts.splice(idx, 1);
             saveConcepts(concepts);
             renderConcepts();
         });
@@ -118,7 +118,7 @@ function attemptSaveConcept() {
         concepts[idx].text = text;
     } else if (name && text) {
         // new entry – add and clear inputs
-        concepts.push({name, text});
+        concepts.push({ name, text });
         conceptName.value = '';
         conceptText.value = '';
     }
@@ -132,18 +132,24 @@ function attemptSaveConcept() {
 dateInput.addEventListener("input", dateHandler);
 dateInput.addEventListener("change", dateHandler);
 
+
+
 // tapping the on‑screen display should show the native picker too
+
+// Simplify the date click
 if (dateDisplay) {
     dateDisplay.addEventListener('click', () => {
-        if (dateInput) {
-            if (typeof dateInput.showPicker === 'function') {
-                dateInput.showPicker();
-            }
-            dateInput.focus();
-        }
+        dateInput.focus(); // Focus triggers the native UI on iOS better than showPicker
+        dateInput.click();
     });
 }
 
+// Help iOS focus the textarea when clicking the empty space
+writingArea.addEventListener('click', (e) => {
+    if (e.target !== diaryText) {
+        diaryText.focus();
+    }
+});
 // when the user taps/clicks the field, open the native picker immediately
 if (dateInput) {
     dateInput.addEventListener('click', () => {
@@ -285,16 +291,26 @@ if (saveConcept) {
     saveConcept.addEventListener('click', () => {
         const name = conceptName.value.trim();
         const text = conceptText.value.trim();
-        if (!name || !text) return;
-        concepts.push({ name, text });
-        saveConcepts(concepts);
-        conceptName.value = '';
-        conceptText.value = '';
-        // do not auto-show concepts — only refresh if list is currently visible
-        if (conceptListEl && conceptListEl.style.display !== 'none') renderConcepts();
+        
+        // Only save if both fields actually have content
+        if (name && text) {
+            concepts.push({ name, text });
+            saveConcepts(concepts);
+            
+            // Clear inputs so you can write a new one
+            conceptName.value = '';
+            conceptText.value = '';
+            
+            // Refresh the list
+            renderConcepts();
+            
+            // Optional: Alert the user or change button color briefly
+            console.log("Concept saved!");
+        } else {
+            alert("Please enter both a title and your understanding.");
+        }
     });
 }
-
 
 // concepts feature removed from main screen; code preserved elsewhere if needed
 

@@ -2,16 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <title>Diary &amp; Notes (Dark)</title>
     <!-- iOS style sheet -->
     <link rel="stylesheet" href="style.css" />
     <!-- PWA manifest -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#000000" />
     <!-- enable standalone on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <link rel="apple-touch-icon" href="icon-192.png" />
   </head>
   <body>
@@ -40,15 +46,17 @@
           <button id="calcClear">C</button>
           <button class="operator" data-value="+">+</button>
 
-          <button id="calcEquals" style="grid-column: span 4;">=</button>
+          <button id="calcEquals" style="grid-column: span 4">=</button>
         </div>
       </div>
     </div>
-    <div class="container" style="display:none;">
+    <div class="container" style="display: none">
       <div id="header">
-        <button id="conceptBtn" title="Concepts" aria-label="Concepts">📚</button>
+        <button id="conceptBtn" title="Concepts" aria-label="Concepts">
+          📚
+        </button>
         <div id="dateDisplay"></div>
-        <input type="date" id="dateInput" style="display:none;" />
+        <input type="date" id="dateInput" style="display: none" />
         <button id="lockBtn" title="Lock" aria-label="Lock">🔒</button>
       </div>
       <div id="writingArea">
@@ -64,11 +72,14 @@
         </div>
 
         <div class="concept-input-area">
-          <input id="conceptName" placeholder="Concept title">
-          <textarea id="conceptText" placeholder="Write your understanding..."></textarea>
+          <input id="conceptName" placeholder="Concept title" />
+          <textarea
+            id="conceptText"
+            placeholder="Write your understanding..."
+          ></textarea>
           <button id="saveConcept">Add</button>
           <button id="showConcepts">Show</button>
-          <button id="hideConcepts" style="display:none;">Hide</button>
+          <button id="hideConcepts" style="display: none">Hide</button>
         </div>
 
         <div id="conceptList" class="concept-grid"></div>
@@ -77,8 +88,8 @@
     <script src="script.js"></script>
     <script>
       // register service worker if supported
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(console.error);
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js").catch(console.error);
       }
     </script>
   </body>

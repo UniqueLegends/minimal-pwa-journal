@@ -342,3 +342,69 @@ button:hover {
         padding: 30px 20px 50px;
     }
 }
+
+/* 1. Prevent all scrolling/bouncing on the main body */
+html, body {
+    height: 100%;
+    overflow: hidden; /* Fixes the calculator/main page scroll */
+    position: fixed; 
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 2. Fix the overflow in Concept View and allow internal scrolling only */
+#conceptView {
+    box-sizing: border-box;
+    overflow-y: auto;
+    padding: env(safe-area-inset-top) 20px 40px; /* Respects iPhone Notch */
+}
+
+.concept-input-area input, 
+.concept-input-area textarea {
+    box-sizing: border-box; /* Prevents horizontal scroll from padding */
+    width: 100%;
+}
+
+/* 3. Fix the Date Input Click-ability */
+#header {
+    position: relative;
+}
+
+#dateInput {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 30px;
+    opacity: 0; /* Invisible but still there to be tapped */
+    z-index: 10;
+}
+
+/* 4. Fix Typing/Focus Issues */
+#diaryText {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 16px !important; /* iOS prevents zoom if font-size >= 16px */
+    background: transparent;
+    -webkit-appearance: none;
+}
+
+/* Ensure the container is scrollable only where needed */
+.container {
+    height: 100%;
+    overflow-y: auto;
+    padding-top: env(safe-area-inset-top);
+}
+
+
+.concept-input-area textarea {
+    -webkit-appearance: none;
+    appearance: none;
+    /* This prevents the "Space" key from scrolling the page */
+    touch-action: manipulation; 
+}

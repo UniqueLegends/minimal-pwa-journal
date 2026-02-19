@@ -1,14 +1,22 @@
 // ================== ELEMENTS ==================
 const dateInput = document.getElementById("dateInput");
 const diaryText = document.getElementById("diaryText");
-const saveBtn = document.getElementById("saveBtn");
-
+const dateDisplay = document.getElementById("dateDisplay");
+// lock button remains for later if desired
+const lockBtn = document.getElementById("lockBtn");
+// concepts view elements
+const conceptBtn = document.getElementById("conceptBtn");
+const conceptView = document.getElementById("conceptView");
+const backToDiary = document.getElementById("backToDiary");
 const conceptName = document.getElementById("conceptName");
-const conceptExplanation = document.getElementById("conceptExplanation");
-const conceptSaveBtn = document.getElementById("conceptSaveBtn");
-const showConcepts = document.getElementById("showConcepts");
-const conceptList = document.getElementById("conceptList");
-const hideConcepts = document.getElementById("hideConcepts");
+const conceptText = document.getElementById("conceptText");
+const saveConcept = document.getElementById("saveConcept");
+const conceptListEl = document.getElementById("conceptList");
+const showConceptsBtn = document.getElementById("showConcepts");
+const hideConceptsBtn = document.getElementById("hideConcepts");
+// container reference used for toggling
+const container = document.querySelector('.container');
+
 
 // ================== DIARY ==================
 
@@ -40,108 +48,242 @@ function persistCurrentEntry() {
     saveDiaryEntries(diaryEntries);
 }
 
-// manual save
-saveBtn.addEventListener("click", persistCurrentEntry);
+// manual save removed; auto‑save handles everything silently
 
 // auto save while typing
 let inputSaveTimer;
 diaryText.addEventListener("input", function () {
     clearTimeout(inputSaveTimer);
     inputSaveTimer = setTimeout(persistCurrentEntry, 500);
+    autoResizeTextarea(this);
 });
 
-// date change
-dateInput.addEventListener("change", function () {
-    const date = dateInput.value;
-    if (!date) return;
-    loadEntryForDate(date);
-});
 
-// load today's entry on start
-window.addEventListener("DOMContentLoaded", function () {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.value = today;
-    loadEntryForDate(today);
-});
-
-// ================== CONCEPTS ==================
-
-function getConcepts() {
-    return JSON.parse(localStorage.getItem("concepts")) || [];
+// make the textarea grow automatically to fit its contents
+function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
 }
 
-function saveConcepts(concepts) {
-    localStorage.setItem("concepts", JSON.stringify(concepts));
+// run once on load to size correctly if there is existing text
+window.addEventListener('DOMContentLoaded', () => {
+    autoResizeTextarea(diaryText);
+});
+
+// respond whenever the date input changes – use our helper to update display
+// and load the entry immediately
+const dateHandler = () => {
+    const date = dateInput.value;
+    if (!date) return;
+    updateDate(date);
+};
+
+// ---------- concepts data and rendering ----------
+function getConcepts() {
+    return JSON.parse(localStorage.getItem('concepts')) || [];
+}
+function saveConcepts(c) {
+    localStorage.setItem('concepts', JSON.stringify(c));
 }
 
 let concepts = getConcepts();
 
-// Save new concept
-conceptSaveBtn.addEventListener("click", function () {
-    const title = conceptName.value.trim();
-    const explanation = conceptExplanation.value.trim();
-
-    // Validation inside event (correct place)
-    if (!title || !explanation) return;
-
-    // Prevent duplicate titles
-    const exists = concepts.some(c => c.title === title);
-    if (exists) {
-        alert("Concept already exists");
-        return;
-    }
-
-    concepts.push({ title, explanation });
-    saveConcepts(concepts);
-
-    conceptName.value = "";
-    conceptExplanation.value = "";
-});
-
-// Show concepts
-showConcepts.addEventListener("click", function () {
-    conceptList.innerHTML = "";
-    conceptList.style.display = "block";
-
-    // no need to re-read from storage, we keep `concepts` updated already
-    concepts.forEach(function (concept) {
-        const wrapper = document.createElement("div");
-
-        const title = document.createElement("h3");
-        const explanation = document.createElement("p");
-        const deleteBtn = document.createElement("button");
-
-        title.textContent = concept.title;
-        explanation.textContent = concept.explanation;
-        deleteBtn.textContent = "Delete";
-
-        // Delete logic INSIDE loop (correct scope)
-        deleteBtn.addEventListener("click", function () {
-            concepts = concepts.filter(c => c.title !== concept.title);
+function renderConcepts() {
+    if (!conceptListEl) return;
+    conceptListEl.innerHTML = '';
+    concepts.forEach((c, idx) => {
+        const card = document.createElement('div');
+        card.className = 'concept-card';
+        card.innerHTML = `
+            <h3>${c.name}</h3>
+            <p>${c.text}</p>
+            <button class="concept-delete" data-index="${idx}" title="Delete">×</button>
+        `;
+        // delete handler
+        card.querySelector('.concept-delete').addEventListener('click', () => {
+            concepts.splice(idx,1);
             saveConcepts(concepts);
-            wrapper.remove();
+            renderConcepts();
         });
-
-        wrapper.appendChild(title);
-        wrapper.appendChild(explanation);
-        wrapper.appendChild(deleteBtn);
-
-        conceptList.appendChild(wrapper);
+        conceptListEl.appendChild(card);
     });
+}
+
+// attach input auto-resize and auto-save for concept fields
+if (conceptText) {
+    conceptText.addEventListener('input', function () {
+        autoResizeTextarea(this);
+        scheduleConceptSave();
+    });
+}
+if (conceptName) {
+    conceptName.addEventListener('input', function () {
+        scheduleConceptSave();
+    });
+}
+
+let conceptSaveTimer;
+function scheduleConceptSave() {
+    clearTimeout(conceptSaveTimer);
+    conceptSaveTimer = setTimeout(attemptSaveConcept, 500);
+}
+
+function attemptSaveConcept() {
+    const name = conceptName.value.trim();
+    const text = conceptText.value.trim();
+    if (!name && !text) return;
+    const idx = concepts.findIndex(c => c.name === name);
+    if (idx >= 0) {
+        // update existing concept text
+        concepts[idx].text = text;
+    } else if (name && text) {
+        // new entry – add and clear inputs
+        concepts.push({name, text});
+        conceptName.value = '';
+        conceptText.value = '';
+    }
+    saveConcepts(concepts);
+    // only refresh the visible list if the user has explicitly shown it
+    if (conceptListEl && conceptListEl.style.display !== 'none') {
+        renderConcepts();
+    }
+}
+
+dateInput.addEventListener("input", dateHandler);
+dateInput.addEventListener("change", dateHandler);
+
+// tapping the on‑screen display should show the native picker too
+if (dateDisplay) {
+    dateDisplay.addEventListener('click', () => {
+        if (dateInput) {
+            if (typeof dateInput.showPicker === 'function') {
+                dateInput.showPicker();
+            }
+            dateInput.focus();
+        }
+    });
+}
+
+// when the user taps/clicks the field, open the native picker immediately
+if (dateInput) {
+    dateInput.addEventListener('click', () => {
+        if (typeof dateInput.showPicker === 'function') {
+            dateInput.showPicker();
+        }
+        dateInput.focus();
+    });
+}
+
+// helper to format yyyy-mm-dd to a nice human string
+function formatDateForDisplay(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const opts = { year: 'numeric', month: 'long', day: 'numeric' };
+    return d.toLocaleDateString(undefined, opts);
+}
+
+// adjust current date by offset days and reload
+function changeDate(offset) {
+    const cur = new Date(dateInput.value);
+    if (isNaN(cur)) return;
+    cur.setDate(cur.getDate() + offset);
+    const iso = cur.toISOString().split('T')[0];
+    dateInput.value = iso;
+    updateDate(iso);
+}
+
+// update both the display text and load entry
+function updateDate(iso) {
+    if (!iso) return;
+    if (dateDisplay) dateDisplay.textContent = formatDateForDisplay(iso);
+    loadEntryForDate(iso);
+}
+
+// load today's entry on start
+document.addEventListener("DOMContentLoaded", function () {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.value = today;
+    updateDate(today);
+    // focus the writing area so the user can start typing immediately
+    if (diaryText) diaryText.focus();
+
+    // ensure concepts view is hidden initially; list remains hidden until user requests
+    if (conceptView) conceptView.classList.remove('active');
+    if (conceptListEl) conceptListEl.style.display = 'none';
+    if (showConceptsBtn) showConceptsBtn.style.display = 'inline-block';
+    if (hideConceptsBtn) hideConceptsBtn.style.display = 'none';
+
+    // add swipe handlers to container for date navigation
+    if (container) {
+        let startX;
+        container.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) startX = e.touches[0].clientX;
+        });
+        container.addEventListener('touchend', e => {
+            if (startX === undefined) return;
+            const dx = e.changedTouches[0].clientX - startX;
+            if (dx > 50) changeDate(-1);
+            else if (dx < -50) changeDate(1);
+            startX = undefined;
+        });
+    }
 });
 
-// Hide concepts
-hideConcepts.addEventListener("click", function () {
-    conceptList.innerHTML = "";
-    conceptList.style.display = "none";
-});
+// ---------- view toggling ----------
+if (conceptBtn && conceptView && container) {
+    conceptBtn.addEventListener('click', () => {
+        container.style.display = 'none';
+        conceptView.classList.add('active');
+        // concepts are not shown automatically; user must press Show
+    });
+}
+
+if (backToDiary && conceptView && container) {
+    backToDiary.addEventListener('click', () => {
+        conceptView.classList.remove('active');
+        container.style.display = 'block';
+        if (diaryText) diaryText.focus();
+    });
+}
+
+// show / hide controls for concept list (explicit control only)
+if (showConceptsBtn && hideConceptsBtn && conceptListEl) {
+    showConceptsBtn.addEventListener('click', () => {
+        renderConcepts();
+        conceptListEl.style.display = 'grid';
+        showConceptsBtn.style.display = 'none';
+        hideConceptsBtn.style.display = 'inline-block';
+    });
+
+    hideConceptsBtn.addEventListener('click', () => {
+        conceptListEl.style.display = 'none';
+        hideConceptsBtn.style.display = 'none';
+        showConceptsBtn.style.display = 'inline-block';
+    });
+}
+
+if (saveConcept) {
+    saveConcept.addEventListener('click', () => {
+        const name = conceptName.value.trim();
+        const text = conceptText.value.trim();
+        if (!name || !text) return;
+        concepts.push({ name, text });
+        saveConcepts(concepts);
+        conceptName.value = '';
+        conceptText.value = '';
+        // do not auto-show concepts — only refresh if list is currently visible
+        if (conceptListEl && conceptListEl.style.display !== 'none') renderConcepts();
+    });
+}
+
+
+// concepts feature removed from main screen; code preserved elsewhere if needed
 
 // ================== DEV TOOL ==================
 
 function clearAllData() {
     if (confirm("Delete everything?")) {
         localStorage.removeItem('diaryEntries');
-        localStorage.removeItem('concepts');
         // other keys (like manifest info) remain untouched
         location.reload();
     }
@@ -167,6 +309,9 @@ function clearAllData() {
     function resetSplash() {
         splash.style.display = 'block';
         if (container) container.style.display = 'none';
+        if (conceptView) {
+            conceptView.classList.remove('active');
+        }
         swipeState = 0;
         clearCalculator();
         resetTimer();
@@ -200,6 +345,7 @@ function clearAllData() {
             // unlocked
             splash.style.display = 'none';
             if (container) container.style.display = 'block';
+            if (diaryText) diaryText.focus();
         }
         resetTimer();
     }

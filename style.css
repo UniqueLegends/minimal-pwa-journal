@@ -6,10 +6,13 @@ body {
     padding: 20px;
     background-color: #000;
     color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+    letter-spacing: 0.3px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
-/* Splash overlay (initial blank screen) */
+/* Splash overlay (initial blank screen) remains unchanged */
 #splash {
     position: fixed;
     top: 0;
@@ -20,20 +23,22 @@ body {
     z-index: 9999;
 }
 
-/* Center content on larger screens */
+/* container becomes the full writing surface */
 .container {
-    max-width: 600px;
+    max-width: 760px;
     margin: 0 auto;
+    min-height: 70vh;
+    background-color: #111;       /* slightly lighter than body */
+    border-radius: 28px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    padding: 40px 30px 60px;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;            /* let page scroll instead of inner */
+    position: relative;
 }
 
-/* Section cards */
-.section {
-    background-color: #1c1c1e;
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
+/* remove old .section styling since we no longer use it */
 
 h2 {
     margin-top: 0;
@@ -41,122 +46,220 @@ h2 {
     font-weight: 600;
 }
 
-/* Inputs and textareas */
-input[type="date"],
-input[type="text"],
+/* Inputs and textarea generally used only for hidden date picker and diary text */
+input[type="date"] {
+    /* hidden visually; date is shown separately */
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* diary textarea as document-style canvas */
 textarea {
     width: 100%;
-    padding: 12px 15px;
-    margin: 8px 0;
+    background: linear-gradient(180deg, #111 0%, #1a1a1a 50%, #111 100%);
+    color: #ddd;
+    font-size: 18px;
+    line-height: 1.7;
+    letter-spacing: 0.3px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    padding: 0;             /* padding is on container */
     border: none;
-    border-radius: 10px;
-    background-color: #2c2c2e;
-    color: #fff;
-    font-size: 16px;
-    box-sizing: border-box;
+    resize: none;
+    overflow: hidden;       /* page will scroll */
+    caret-color: #6aa9ff;
+    min-height: 60vh;
+    /* remove internal scrollbar to ensure page scroll only */
+    scroll-behavior: smooth;
 }
 
-/* concept name field explicitly dark */
-#conceptName {
-    background-color: #2c2c2e;
-    color: #fff;
+/* keep the date picker reasonably sized so it doesn’t dominate
+   the right-hand side of a wide layout */
+input[type="date"] {
+    max-width: 220px;
 }
 
-/* concept list items dark and text visible */
-#conceptList > div {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #2c2c2e;
-    border-radius: 10px;
+/* date display header styling */
+#dateDisplay {
+    text-align: center;
+    font-size: 19px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+#header {
     position: relative;
-    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-#conceptList h3,
-#conceptList p {
-    color: #fff;
+#conceptBtn {
+    position: absolute;
+    left: 0;
 }
 
-#conceptList button {
-    background-color: #ff3b30;
-    color: #fff;
+#lockBtn {
+    position: absolute;
+    right: 0;
 }
 
-input:focus,
-textarea:focus {
-    outline: none;
-    background-color: #3a3a3c;
-}
+/* concept styles removed; feature hidden */
 
-textarea {
-    height: 120px;
-    resize: vertical;
-}
+/* no additional focus styling needed — keep things minimal */
 
 /* Buttons */
+/* only a tiny lock button remains */
 button {
     -webkit-appearance: none;
     appearance: none;
+    background: transparent;
     border: none;
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-size: 17px;
-    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    font-size: 20px;
     cursor: pointer;
-    margin: 5px 2px 0 0;
-    color: #fff;
+    padding: 4px;
 }
 
-button#saveBtn,
-button#conceptSaveBtn {
-    background-color: #007aff;
-    color: #fff;
+button:hover {
+    color: rgba(255,255,255,0.9);
 }
 
-button#showConcepts {
-    background-color: #34c759;
-    color: #fff;
-}
-
-button#hideConcepts {
-    background-color: #ff3b30;
-    color: #fff;
-}
-
-#conceptList h3 {
-    margin: 0 0 5px;
-    font-size: 17px;
-}
-
-#conceptList p {
-    margin: 0 0 5px;
-    font-size: 15px;
-}
-
-#conceptList button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #ff3b30;
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 8px;
-}
-
-/* Hide/show concept area spacing */
-#conceptList {
-    margin-top: 10px;
-    display: none; /* initial hidden state (controlled by JS) */
-    transition: max-height 0.3s ease;
-    overflow: hidden;
-}
+/* removed concept-related rules entirely */
 
 /* Calculator layout inside splash */
 #calculator {
-    width: 90vw;
-    max-width: 300px;
+    /* make the calculator span the available width on phones
+       with a generous max so it doesn't look tiny on larger devices */
+    width: 100%;
+    max-width: 450px;
     margin: 100px auto 0;
     color: #fff;
+}
+
+/* ─── concept view (Obsidian mode) ─────────────────────────────────── */
+#conceptView {
+    position: fixed;
+    inset: 0;
+    background: #111111;
+    color: #ddd;
+    z-index: 2000;
+    padding: 40px 30px;
+    overflow-y: auto;
+    display: none;
+    /* optional fade animation */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#conceptView.active {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.concept-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.concept-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.concept-header h2 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.concept-header button {
+    background: transparent;
+    border: none;
+    color: #ccc;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.concept-input-area input,
+.concept-input-area textarea {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #ccc;
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+.concept-input-area textarea {
+    min-height: 120px;
+    resize: none;
+}
+
+.concept-input-area button {
+    background: #222;
+    border: 1px solid #333;
+    color: #ccc;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.concept-input-area button:hover {
+    background: #2a2a2a;
+}
+
+.concept-grid {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.concept-card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    padding: 16px;
+    border-radius: 8px;
+    transition: border 0.2s ease, transform 0.2s ease;
+}
+
+.concept-card:hover {
+    border-color: #3a3a3a;
+    transform: translateY(-2px);
+}
+
+.concept-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    color: #fff;
+}
+
+.concept-card p {
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.5;
+}
+
+.concept-delete {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 16px;
+    cursor: pointer;
+}
+.concept-delete:hover {
+    color: #ccc;
 }
 
 #calcDisplay {
@@ -194,11 +297,7 @@ button#hideConcepts {
     body {
         padding: 10px;
     }
-    .section {
-        padding: 15px;
-    }
-    button {
-        padding: 10px 15px;
-        font-size: 15px;
+    .container {
+        padding: 30px 20px 50px;
     }
 }

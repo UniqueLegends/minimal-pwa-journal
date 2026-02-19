@@ -3,7 +3,7 @@
 /* Dark theme global body */
 body {
     margin: 0;
-    padding: 20px;
+    padding: 0;
     background-color: #000;
     color: #fff;
     font-size: 18px;
@@ -62,7 +62,8 @@ html, body {
     background: rgba(106,169,255,0.9);
     border-radius: 1px;
     animation: blink 1s steps(1) infinite;
-    pointer-events: auto;
+    /* let taps pass through to the underlying textarea so native focus works */
+    pointer-events: none;
     z-index: 2;
 }
 
@@ -95,27 +96,22 @@ input[type="date"] {
 }
 
 /* diary textarea as document-style canvas */
-textarea {
+#diaryText {
     width: 100%;
+    min-height: 60vh;
     background: linear-gradient(180deg, #111 0%, #1a1a1a 50%, #111 100%);
     color: #ddd;
     font-size: 18px;
     line-height: 1.7;
     letter-spacing: 0.3px;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        padding: 0;             /* padding is on container */
-        border: none;
-        resize: none;
-        overflow: hidden;       /* page will scroll as document grows */
-        caret-color: #6aa9ff;
-        /* allow textarea to grow and take remaining vertical space */
-        flex: 1 1 auto;
-        min-height: unset;
-    z-index: 1; /* ensure it's above any hidden overlays */
-    pointer-events: auto; /* ensure it receives taps */
-    /* remove internal scrollbar to ensure page scroll only */
-    scroll-behavior: smooth;
+    border: none;
+    outline: none;
+    resize: none;
+    padding: 0;
+    caret-color: #6aa9ff;
+    overflow: auto;   /* IMPORTANT */
 }
+
 
 /* keep the date picker reasonably sized so it doesn’t dominate
    the right-hand side of a wide layout */

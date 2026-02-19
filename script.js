@@ -17,7 +17,6 @@ const hideConceptsBtn = document.getElementById("hideConcepts");
 // container reference used for toggling
 const container = document.querySelector('.container');
 const writingArea = document.getElementById('writingArea');
-const fakeCursor = document.getElementById('fakeCursor');
 
 
 // ================== DIARY ==================
@@ -52,29 +51,6 @@ function persistCurrentEntry() {
 
 // manual save removed; auto‑save handles everything silently
 
-// auto save while typing
-let inputSaveTimer;
-diaryText.addEventListener("input", function () {
-    clearTimeout(inputSaveTimer);
-    inputSaveTimer = setTimeout(persistCurrentEntry, 500);
-    autoResizeTextarea(this);
-});
-
-
-// make the textarea grow automatically to fit its contents
-function autoResizeTextarea(el) {
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
-}
-
-// run once on load to size correctly if there is existing text
-window.addEventListener('DOMContentLoaded', () => {
-    autoResizeTextarea(diaryText);
-    // reflect whether diary has content so we can hide fake cursor
-    if (diaryText && diaryText.value && diaryText.value.length > 0) {
-        if (writingArea) writingArea.classList.add('writing-has-text');
-    }
-});
 
 // respond whenever the date input changes – use our helper to update display
 // and load the entry immediately
@@ -115,13 +91,11 @@ function renderConcepts() {
     });
 }
 
+
+
+
 // attach input auto-resize and auto-save for concept fields
-if (conceptText) {
-    conceptText.addEventListener('input', function () {
-        autoResizeTextarea(this);
-        scheduleConceptSave();
-    });
-}
+
 if (conceptName) {
     conceptName.addEventListener('input', function () {
         scheduleConceptSave();
@@ -233,37 +207,8 @@ document.addEventListener("DOMContentLoaded", function () {
             startX = undefined;
         });
     }
-    // clicking the writing area or fake cursor should focus the textarea
-    if (writingArea) {
-        const focusDiary = () => {
-            if (!diaryText) return;
-            try {
-                // place caret at end
-                const len = diaryText.value ? diaryText.value.length : 0;
-                diaryText.focus();
-                diaryText.setSelectionRange(len, len);
-            } catch (e) {
-                // some platforms may throw; try again shortly
-                setTimeout(() => {
-                    try { diaryText.focus(); } catch {}
-                }, 50);
-            }
-        };
-
-        ['click','mousedown','touchstart','touchend'].forEach(evt => {
-            writingArea.addEventListener(evt, (e) => {
-                // allow the user to tap anywhere to start typing
-                focusDiary();
-            });
-        });
-    }
-    if (fakeCursor) {
-        ['click','mousedown','touchstart','touchend'].forEach(evt => {
-            fakeCursor.addEventListener(evt, (e) => {
-                focusDiary();
-            });
-        });
-    }
+    // do not programmatically focus here — allow native taps on the textarea
+    // to trigger the keyboard (matching the behavior in the Concepts view).
 
     // show/hide fake cursor based on focus and content
     if (diaryText) {
@@ -282,6 +227,27 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+
+
+let inputSaveTimer;
+
+diaryText.addEventListener("input", () => {
+    clearTimeout(inputSaveTimer);
+    inputSaveTimer = setTimeout(() => {
+        const date = dateInput.value;
+        if (!date) return;
+
+        diaryEntries[date] = diaryText.value;
+        saveDiaryEntries(diaryEntries);
+    }, 400);
+});
+
+
+
+
+
+
 
 // ---------- view toggling ----------
 if (conceptBtn && conceptView && container) {

@@ -48,14 +48,24 @@ function loadEntryForDate(date) {
     }
 }
 
+c
+
+// This specific handler ensures that as soon as the wheel stops on a date, 
+// the app switches to that date.
 const dateHandler = () => {
-    const date = dateInput.value;
-    if (!date) return;
-    updateDate(date);
+    if (dateInput.value) {
+        updateDate(dateInput.value);
+        // Optional: Remove focus to tell iOS the interaction is done
+        dateInput.blur(); 
+    }
 };
 
-dateInput.addEventListener("input", dateHandler);
+// Use 'change' specifically for the picker closing/finalizing selection
 dateInput.addEventListener("change", dateHandler);
+
+// Keep 'input' for real-time selection if the browser supports it
+dateInput.addEventListener("input", dateHandler);
+
 
 let inputSaveTimer;
 diaryText.addEventListener("input", () => {

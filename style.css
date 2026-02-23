@@ -45,33 +45,59 @@ html, body {
 
 #calcDisplay {
     width: 100%;
-    padding: 20px;
-    font-size: 32px;
+    padding: 30px 20px 10px;
+    font-size: 48px;
+    font-weight: 300;
     text-align: right;
-    border: 1px solid #333;
-    border-radius: 12px;
-    background-color: #000;
+    border: none;
+    background: transparent;
     color: #fff;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
 }
 
 .calc-buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    gap: 14px;
+    padding: 0 10px;
 }
 
 .calc-buttons button {
-    padding: 20px 0;
-    font-size: 22px;
+    height: 70px;
+    font-size: 24px;
     border-radius: 50%;
-    background-color: #333;
+    border: none;
+    background: #1c1c1e;
     color: #fff;
+    font-weight: 500;
+    transition: transform 0.08s ease, background 0.2s ease;
+    
+    /* Subtle premium border */
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+.calc-buttons button:active {
+    transform: scale(0.94);
 }
 
 .calc-buttons button.operator {
-    background-color: #ff9500;
+    background: #ff9f0a;
+    color: #000;
+    font-weight: 600;
+    box-shadow: none;
 }
+
+.equals {
+    grid-column: span 4;
+    border-radius: 20px;
+    height: 65px;
+    background: #2c2c2e;
+    font-size: 28px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+
 
 /* ================== MAIN DIARY CONTAINER ================== */
 .container {
@@ -85,6 +111,14 @@ html, body {
     padding: env(safe-area-inset-top) 18px env(safe-area-inset-bottom);
     overflow-y: auto;
     position: relative;
+}
+.equals {
+    grid-column: span 4;
+    border-radius: 20px;
+    height: 65px;
+    background: #2c2c2e;
+    font-size: 28px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
 }
 
 /* ================== HEADER & NAVIGATION ================== */

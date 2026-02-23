@@ -4,6 +4,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+/* ================== GLOBAL & RESET ================== */
 html, body {
     height: 100%;
     width: 100%;
@@ -12,10 +13,10 @@ html, body {
     background-color: #000;
     color: #fff;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    /* Prevent the bounce/scroll on the calculator/background */
+    
+    /* FIX: Remove position: fixed; it breaks touch on iOS homescreen PWAs */
     overflow: hidden; 
-    position: fixed; 
-    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none; /* Prevents pull-to-refresh and bounce */
 }
 
 /* ================== SPLASH / CALCULATOR ================== */
@@ -30,12 +31,16 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* FIX: Allow taps but block browser-level scrolling/zooming */
+    touch-action: manipulation; 
 }
 
-#calculator {
-    width: min(90vw, 400px);
-    margin: 60px auto 0;
-    color: #fff;
+.calc-buttons button {
+    /* FIX: Ensure buttons are explicitly clickable and sit above the splash surface */
+    position: relative;
+    z-index: 10000;
+    pointer-events: auto;
+    touch-action: manipulation;
 }
 
 #calcDisplay {

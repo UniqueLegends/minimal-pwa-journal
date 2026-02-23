@@ -48,15 +48,13 @@ function loadEntryForDate(date) {
     }
 }
 
-c
-
 // This specific handler ensures that as soon as the wheel stops on a date, 
 // the app switches to that date.
 const dateHandler = () => {
     if (dateInput.value) {
         updateDate(dateInput.value);
         // Optional: Remove focus to tell iOS the interaction is done
-        dateInput.blur(); 
+        dateInput.blur();
     }
 };
 
@@ -65,6 +63,7 @@ dateInput.addEventListener("change", dateHandler);
 
 // Keep 'input' for real-time selection if the browser supports it
 dateInput.addEventListener("input", dateHandler);
+
 
 
 let inputSaveTimer;
@@ -247,26 +246,44 @@ document.addEventListener("DOMContentLoaded", function () {
         if (document.getElementById('calcDisplay')) document.getElementById('calcDisplay').value = '0';
     }
 
-    splash.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+
+
+
+    // Locate the splash listener section and update it to this:
+    splash.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+        // Remove passive: true to allow the app to capture this event fully
+    }, { passive: false });
+
     splash.addEventListener('touchend', e => {
         const dx = e.changedTouches[0].clientX - startX;
-        if (dx < -threshold && (swipeState === 0 || swipeState === 2)) swipeState++;
-        else if (dx > threshold && swipeState === 1) swipeState++;
-        else swipeState = 0;
+
+        // Log for debugging (you can remove this after it works)
+        console.log("Swipe DX:", dx);
+
+        if (dx < -threshold && (swipeState === 0 || swipeState === 2)) {
+            swipeState++;
+        } else if (dx > threshold && swipeState === 1) {
+            swipeState++;
+        } else {
+            swipeState = 0;
+        }
 
         if (swipeState === 3) {
             splash.style.display = 'none';
             container.style.display = 'flex';
         }
-    });
+    }, { passive: false });
 
     if (lockBtn) lockBtn.addEventListener('click', resetSplash);
     document.addEventListener('visibilitychange', () => { if (document.hidden) resetSplash(); });
 
     // Calc Logic
+    // Calc Logic - Force response on both click and touchend for iOS PWA
     const display = document.getElementById('calcDisplay');
     splash.querySelectorAll('.calc-buttons button').forEach(btn => {
-        btn.addEventListener('click', () => {
+        const handleCalcInput = (e) => {
+            e.preventDefault(); // Prevent double-firing (click + tap)
             const val = btn.getAttribute('data-value');
             if (btn.id === 'calcClear') display.value = '0';
             else if (btn.id === 'calcEquals') {
@@ -275,7 +292,11 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (val) {
                 display.value = (display.value === '0') ? val : display.value + val;
             }
-        });
+        };
+
+        btn.addEventListener('click', handleCalcInput);
+        btn.addEventListener('touchend', handleCalcInput);
     });
+
     resetSplash();
 })();
